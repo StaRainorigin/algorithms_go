@@ -6,24 +6,34 @@ func checkInclusion(s1 string, s2 string) bool {
 		return false
 	}
 	
-	aMap := [26]int{}
+	less := 0
+	cnt := [26]int{}
 	for _, c := range s1 {
-		aMap[c-'a']++
+		if cnt[c - 'a'] == 0 {
+			less++
+		}
+		cnt[c - 'a']++
 	}
-
-	bMap := [26]int{}
-	for i, c := range s2 {
-		bMap[c-'a']++
-		if i < m - 1 {
+	
+	for r, c := range s2 {
+		cnt[c - 'a']--
+		if cnt[c - 'a'] == 0 {
+			less--
+		}
+		
+		if r < m - 1 {
 			continue
 		}
 		
-		if aMap == bMap {
+		if less == 0 {
 			return true
 		}
 		
-		bMap[s2[i-m+1]-'a']--
+		l := r-m+1
+		if cnt[s2[l] - 'a'] == 0 {
+			less++
+		}
+		cnt[s2[l] - 'a']++
 	}
-	
 	return false
 }
