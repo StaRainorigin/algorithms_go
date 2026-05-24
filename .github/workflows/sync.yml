@@ -2,53 +2,12 @@ name: Sync Branch To Main
 
 on:
   push:
-    branches-ignore:
-      - main
-
-permissions:
-  contents: write
+    branches:
+      - seadraw-go
 
 jobs:
-  sync:
+  test:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout source branch
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Get branch name
-        id: branch
-        run: echo "name=${GITHUB_REF##*/}" >> $GITHUB_OUTPUT
-
-      - name: Clone main branch
-        run: |
-          git clone https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} main-repo
-
-      - name: Checkout main
-        run: |
-          cd main-repo
-          git checkout main
-
-      - name: Sync leetcode folder
-        run: |
-          mkdir -p main-repo/${{ steps.branch.outputs.name }}/leetcode
-
-          rsync -av --delete \
-            --exclude='.git' \
-            ./leetcode/ \
-            main-repo/${{ steps.branch.outputs.name }}/leetcode/
-
-      - name: Commit and push
-        run: |
-          cd main-repo
-
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
-
-          git add .
-
-          git commit -m "sync: ${{ steps.branch.outputs.name }}" || echo "No changes"
-
-          git push origin main
+      - run: echo "sync triggered"
