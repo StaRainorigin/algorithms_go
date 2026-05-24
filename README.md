@@ -1,1 +1,1 @@
-# algorithms_go
+# seadraw-go
