@@ -1,0 +1,53 @@
+name: Sync Branch To Main
+
+on:
+  push:
+    branches-ignore:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout pushed branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get branch name
+        id: branch
+        run: echo "name=${GITHUB_REF##*/}" >> $GITHUB_OUTPUT
+
+      - name: Clone main branch
+        run: |
+          git clone https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} main-repo
+
+      - name: Checkout main
+        run: |
+          cd main-repo
+          git checkout main
+
+      - name: Sync files
+        run: |
+          rsync -av --delete \
+            --exclude='.git' \
+            --exclude='.github' \
+            ./ \
+            main-repo/${{ steps.branch.outputs.name }}/
+
+      - name: Commit and push
+        run: |
+          cd main-repo
+
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+
+          git add .
+
+          git commit -m "sync: ${{ steps.branch.outputs.name }}" || echo "No changes"
+
+          git push origin main
