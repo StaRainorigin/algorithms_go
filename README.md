@@ -1,1 +1,1 @@
-# algorithms_go
+# torchman-go
